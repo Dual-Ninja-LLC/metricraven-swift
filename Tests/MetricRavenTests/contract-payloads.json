@@ -1,0 +1,7 @@
+[
+  {"siteId":"ana_pub_test","type":"pageview","timestamp":"2027-01-15T08:00:00.000Z","app":{"id":"com.example.app","version":"1.2.0","build":"42","platform":"ios","osVersion":"26.1","deviceType":"mobile"},"screen":"Settings","props":{"tab":"profile"},"utm":{"source":"tiktok","campaign":"launch"}},
+  {"siteId":"ana_pub_test","type":"event","timestamp":"2027-01-15T08:00:00.000Z","app":{"id":"com.example.app","platform":"ios"},"clientId":"0123456789abcdef0123456789abcdef","link":true,"screen":"Paywall","name":"purchase","props":{"plan":"pro","seats":3,"trial":false}},
+  {"siteId":"ana_pub_test","type":"identify","timestamp":"2027-01-15T08:00:00.000Z","app":{"id":"com.example.app","platform":"ios"},"userId":"user_42","traits":{"name":"Ana","email":"ana@example.com","country":"ES"}},
+  {"siteId":"ana_pub_test","type":"identify","timestamp":"2027-01-15T08:00:00.000Z","app":{"id":"com.example.app","platform":"ios"},"identityToken":"aaa.bbb.ccc"},
+  {"siteId":"ana_pub_test","type":"link","timestamp":"2027-01-15T08:00:00.000Z","app":{"id":"com.example.app","platform":"ios"},"clientId":"0123456789abcdef0123456789abcdef","link":true}
+]

@@ -1,6 +1,8 @@
 import Foundation
 #if canImport(UIKit)
 import UIKit
+#elseif canImport(AppKit)
+import AppKit
 #endif
 
 /**
@@ -27,8 +29,8 @@ public enum MetricRaven {
     }
 
     /**
-     Starts tracking. App version, build, OS version, platform and device type are read from the
-     bundle and device. Returns false when the app ID isn't a bundle ID like com.example.app.
+     Starts tracking. App version, build, OS version, platform, device type, language and screen size
+     are read from the bundle and device. Returns false when the app ID isn't a bundle ID like com.example.app.
      */
     @discardableResult
     public static func configure(
@@ -49,6 +51,8 @@ public enum MetricRaven {
             platform: DeviceInfo.platform,
             osVersion: DeviceInfo.osVersion,
             deviceType: DeviceInfo.deviceType,
+            language: DeviceInfo.language,
+            screenSize: DeviceInfo.screenSize,
             apiHost: apiHost,
             endpoint: endpoint,
             consent: consent,
@@ -122,9 +126,27 @@ enum DeviceInfo {
         return .mobile
         #endif
     }
+
+    /// The user's first preferred language, e.g. "en-US".
+    static var language: String? {
+        Locale.preferredLanguages.first
+    }
+
+    /// The screen size in points ("390x844"), like CSS pixels on the web; nil when unknown.
+    static var screenSize: String? {
+        #if os(iOS) || os(tvOS)
+        guard let bounds = MainActor.assumeIsolatedIfMain({ UIScreen.main.bounds }) else { return nil }
+        return Validate.screenSize(width: Double(bounds.width), height: Double(bounds.height))
+        #elseif os(macOS)
+        guard Thread.isMainThread, let frame = MainActor.assumeIsolated({ NSScreen.main?.frame }) else { return nil }
+        return Validate.screenSize(width: Double(frame.width), height: Double(frame.height))
+        #else
+        return nil
+        #endif
+    }
 }
 
-#if os(iOS)
+#if os(iOS) || os(tvOS)
 extension MainActor {
     /// Runs `body` on the main actor when already on the main thread; nil otherwise.
     static func assumeIsolatedIfMain<T: Sendable>(_ body: @MainActor () -> T) -> T? {

@@ -69,6 +69,30 @@ final class ClientTests: XCTestCase {
         XCTAssertEqual(app, ["id": "com.example.app", "version": "1.2.0", "build": "42", "platform": "ios", "osVersion": "26.1", "deviceType": "mobile"])
     }
 
+    func testLanguageAndScreenSizeGoWithScreenViewsOnly() async throws {
+        let transport = MockTransport()
+        let c = try MetricRavenClient(configuration: MetricRavenConfiguration(
+            siteId: "ana_pub_test",
+            appId: "com.example.app",
+            platform: .ios,
+            language: "pt_BR",
+            screenSize: "390x844",
+            storage: MemoryStorage(),
+            transport: transport
+        ))
+        c.screen("Home")
+        c.track("purchase")
+        c.identify("user_42")
+        await c.flush()
+        XCTAssertEqual(transport.sent.count, 3)
+        XCTAssertEqual(transport.sent[0]["lang"] as? String, "pt-BR")
+        XCTAssertEqual(transport.sent[0]["screenSize"] as? String, "390x844")
+        for body in transport.sent.dropFirst() {
+            XCTAssertNil(body["lang"])
+            XCTAssertNil(body["screenSize"])
+        }
+    }
+
     func testEventsCarryTheCurrentScreenAndBadNamesAreDropped() async throws {
         let transport = MockTransport()
         let c = try client(transport)

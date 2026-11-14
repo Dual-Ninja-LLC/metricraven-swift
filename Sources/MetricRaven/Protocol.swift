@@ -79,6 +79,10 @@ struct CollectPayload: Codable, Equatable, Sendable {
     var traits: MetricRavenProps?
     var identityToken: String?
     var utm: UTM?
+    /// Device language as a BCP 47 tag ("en-US"). Screen views only.
+    var lang: String?
+    /// Screen size in points, "390x844". Screen views only.
+    var screenSize: String?
 }
 
 enum Validate {
@@ -160,6 +164,28 @@ enum Validate {
     }
 
     static func short(_ value: String?) -> String? { trimmed(value, max: 50) }
+
+    static let languageTag = "^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$"
+    static let screenSizePattern = "^\\d{2,5}x\\d{2,5}$"
+
+    /// A language tag such as "en-US" (at most 35 characters); "en_US" becomes "en-US".
+    static func language(_ value: String?) -> String? {
+        guard let tag = trimmed(value, max: 100)?.replacingOccurrences(of: "_", with: "-"),
+              tag.count <= 35, matches(tag, languageTag) else { return nil }
+        return tag
+    }
+
+    /// "WxH", e.g. "390x844"; anything else is dropped.
+    static func screenSize(_ value: String?) -> String? {
+        guard let value = trimmed(value, max: 20), matches(value, screenSizePattern) else { return nil }
+        return value
+    }
+
+    /// "WxH" from a size in points, rounded.
+    static func screenSize(width: Double, height: Double) -> String? {
+        guard width.isFinite, height.isFinite, width > 0, height > 0, width < 100_000, height < 100_000 else { return nil }
+        return screenSize("\(Int(width.rounded()))x\(Int(height.rounded()))")
+    }
 
     /// Campaign parameters from a deep link (utm_source…); nothing else from the URL is kept.
     static func utm(from url: URL?) -> UTM? {

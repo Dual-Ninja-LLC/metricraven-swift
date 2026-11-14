@@ -31,6 +31,8 @@ The device shows on the realtime globe as a live visitor, under the person it wa
 - **Offline.** Events queue in UserDefaults (up to 500, for 7 days) and are delivered in order, with
   backoff on network errors, rate limits and server errors. The queue flushes when the app returns to
   the foreground and when it goes to the background.
+- **Language and screen size.** Each screen view carries the device's preferred language (for example
+  `en-US`) and the screen size in points (for example `390x844`). Events never carry them.
 - **Deep links.** `MetricRaven.openedFrom(url:)` attaches utm_* campaign parameters to the next screen.
 
 Docs: https://metricraven.com/docs/ios-sdk

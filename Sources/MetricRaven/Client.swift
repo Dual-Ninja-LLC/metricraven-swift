@@ -11,6 +11,10 @@ public struct MetricRavenConfiguration: Sendable {
     public var platform: AppPlatform
     public var osVersion: String?
     public var deviceType: DeviceType?
+    /// Device language, e.g. "en-US". Sent with screen views only. `MetricRaven.configure` reads it from the device.
+    public var language: String?
+    /// Screen size in points, "390x844". Sent with screen views only. `MetricRaven.configure` reads it from the device.
+    public var screenSize: String?
     /// Default https://metricraven.com.
     public var apiHost: URL
     /// Full collect URL, overriding apiHost (e.g. your own proxy).
@@ -39,6 +43,8 @@ public struct MetricRavenConfiguration: Sendable {
         platform: AppPlatform = .other,
         osVersion: String? = nil,
         deviceType: DeviceType? = nil,
+        language: String? = nil,
+        screenSize: String? = nil,
         apiHost: URL = URL(string: "https://metricraven.com")!,
         endpoint: URL? = nil,
         consent: Bool = false,
@@ -58,6 +64,8 @@ public struct MetricRavenConfiguration: Sendable {
         self.platform = platform
         self.osVersion = osVersion
         self.deviceType = deviceType
+        self.language = language
+        self.screenSize = screenSize
         self.apiHost = apiHost
         self.endpoint = endpoint
         self.consent = consent
@@ -178,6 +186,8 @@ struct Queued: Codable, Sendable {
 actor Engine {
     private let config: MetricRavenConfiguration
     private let app: AppInfo
+    private let language: String?
+    private let screenSize: String?
     private let endpoint: URL
     private let queueKey: String
     private let idKey: String
@@ -210,6 +220,8 @@ actor Engine {
             osVersion: Validate.short(config.osVersion),
             deviceType: config.deviceType
         )
+        language = Validate.language(config.language)
+        screenSize = Validate.screenSize(config.screenSize)
         endpoint = config.endpoint ?? config.apiHost.appendingPathComponent("api/v1/collect")
         queueKey = "metricraven:queue:\(config.siteId)"
         idKey = "metricraven:client-id:\(config.siteId)"
@@ -348,6 +360,10 @@ actor Engine {
             screen: screen, name: name, props: props, userId: userId, traits: traits,
             identityToken: identityToken, utm: utm
         )
+        if type == .pageview {
+            payload.lang = language
+            payload.screenSize = screenSize
+        }
         if let clientId {
             payload.clientId = clientId
             if pendingLink {

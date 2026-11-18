@@ -37,6 +37,20 @@ The device shows on the realtime globe as a live visitor, under the person it wa
 
 Docs: https://metricraven.com/docs/ios-sdk
 
+## Paywall events
+
+Paywall views, closes, cancels and taps from RevenueCat, Superwall, Adapty or your own paywall, with no dependency on their SDKs:
+
+```swift
+let paywall = MetricRavenPaywall(provider: "revenuecat", offeringId: offering.identifier)
+PaywallView(offering: offering)
+    .onAppear { paywall.impression() }
+    .onPurchaseCancelled { paywall.cancel() }
+    .onPaywallInteraction { event in paywall.interaction(event.rawProperties) }
+```
+
+Superwall: `paywall.superwall(eventInfo.event.description, params: eventInfo.params)`. Send paywall events from the app or forward them from your backend, not both, or they are counted twice. See https://metricraven.com/docs/paywall-events.
+
 ## Development
 
 ```sh

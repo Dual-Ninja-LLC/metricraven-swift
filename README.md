@@ -1,21 +1,47 @@
 # MetricRaven for Swift
 
-MetricRaven analytics for native iOS, iPadOS, macOS, tvOS, watchOS and visionOS apps: screen views,
-events, identify, consent and an offline queue. No dependencies.
+[![Latest tag](https://img.shields.io/github/v/tag/Dual-Ninja-LLC/metricraven-swift?label=version)](https://github.com/Dual-Ninja-LLC/metricraven-swift/tags)
 
-Add `https://github.com/Dual-Ninja-LLC/metricraven-swift` with Swift Package Manager (Xcode: File →
-Add Package Dependencies…).
+The Swift package for [MetricRaven](https://metricraven.com), privacy-friendly analytics with revenue
+attribution: see which traffic actually pays. It records screen views, events and signed-in users from
+native iOS, iPadOS, macOS, tvOS, watchOS and visionOS apps, so app users sit next to your website
+visitors, payments and subscriptions in one dashboard. No dependencies. iOS 15, macOS 12, tvOS 15,
+watchOS 8, visionOS 1 and later.
+
+## Install
+
+In Xcode: **File → Add Package Dependencies…** and enter `https://github.com/Dual-Ninja-LLC/metricraven-swift`.
+Or in `Package.swift`:
+
+```swift
+.package(url: "https://github.com/Dual-Ninja-LLC/metricraven-swift", from: "0.3.0")
+// and in your target:
+.product(name: "MetricRaven", package: "metricraven-swift")
+```
+
+## Usage
+
+In your site's **Settings → General → Site**, add your bundle ID (for example `com.example.app`) under
+**Mobile apps**. Events from app IDs that aren't listed are rejected.
 
 ```swift
 import MetricRaven
 
-// At launch. The app ID (your bundle ID) must be listed under Settings → General → Site → Mobile apps.
-MetricRaven.configure(siteId: "ana_pub_…")
+@main
+struct MyApp: App {
+    init() {
+        // The app ID defaults to your bundle ID; version, build and device are read automatically.
+        MetricRaven.configure(siteId: "ana_pub_…")
+    }
+    var body: some Scene { WindowGroup { ContentView() } }
+}
+```
 
+```swift
 MetricRaven.screen("Home")
 MetricRaven.track("signup", props: ["plan": "pro"])
 
-// After sign-in: the same user ID your server events and server identify use.
+// After sign-in: the same user ID your server events, server identify and payments use.
 MetricRaven.identify("user_42", traits: ["name": "Ana", "email": "ana@example.com"])
 // Or verified, with a token your server signs (signIdentity in @metricraven/node):
 MetricRaven.identify(token: tokenFromYourServer)
@@ -24,22 +50,25 @@ MetricRaven.identify(token: tokenFromYourServer)
 MetricRaven.reset()
 ```
 
-The device shows on the realtime globe as a live visitor, under the person it was identified as.
+Open the app on a device or simulator: it shows on the realtime globe as a live visitor, under the
+person you identified it as, and screens appear under Pages as paths like `/Home`.
 
+## Features
+
+- **Revenue per user and channel.** Identify with the same user ID you use for RevenueCat, Superwall,
+  Adapty, Stripe or your server, and purchases and renewals are credited to where that user came from.
+- **Paywall events.** Views, closes, cancels and taps from RevenueCat, Superwall, Adapty or your own
+  paywall, with no dependency on their SDKs (see below).
 - **Consent.** By default nothing is stored on the device and the server derives a daily visitor ID.
   `configure(…, consent: true)` or `setConsent(true)` keeps a random ID so a visitor lasts across days.
-- **Offline.** Events queue in UserDefaults (up to 500, for 7 days) and are delivered in order, with
+- **Offline queue.** Events queue in UserDefaults (up to 500, for 7 days) and are delivered in order, with
   backoff on network errors, rate limits and server errors. The queue flushes when the app returns to
   the foreground and when it goes to the background.
 - **Language and screen size.** Each screen view carries the device's preferred language (for example
   `en-US`) and the screen size in points (for example `390x844`). Events never carry them.
 - **Deep links.** `MetricRaven.openedFrom(url:)` attaches utm_* campaign parameters to the next screen.
 
-Docs: https://metricraven.com/docs/ios-sdk
-
-## Paywall events
-
-Paywall views, closes, cancels and taps from RevenueCat, Superwall, Adapty or your own paywall, with no dependency on their SDKs:
+### Paywall events
 
 ```swift
 let paywall = MetricRavenPaywall(provider: "revenuecat", offeringId: offering.identifier)
@@ -49,7 +78,22 @@ PaywallView(offering: offering)
     .onPaywallInteraction { event in paywall.interaction(event.rawProperties) }
 ```
 
-Superwall: `paywall.superwall(eventInfo.event.description, params: eventInfo.params)`. Send paywall events from the app or forward them from your backend, not both, or they are counted twice. See https://metricraven.com/docs/paywall-events.
+Superwall: `paywall.superwall(eventInfo.event.description, params: eventInfo.params)`. Send paywall
+events from the app or forward them from your backend, not both, or they are counted twice. See
+[Paywall events](https://metricraven.com/docs/paywall-events).
+
+## Privacy
+
+The package ships a privacy manifest (`PrivacyInfo.xcprivacy`) that declares no tracking and no tracking
+domains. It doesn't use the advertising identifier, and without consent it stores nothing on the device.
+
+## Links
+
+- Docs: https://metricraven.com/docs/ios-sdk
+- Paywall events: https://metricraven.com/docs/paywall-events
+- Dashboard and sign-up: https://metricraven.com
+- Android and Kotlin: https://github.com/Dual-Ninja-LLC/metricraven-kotlin
+- Support: support@metricraven.com
 
 ## Development
 
@@ -60,3 +104,7 @@ xcodebuild -scheme MetricRaven -destination 'generic/platform=iOS Simulator' bui
 
 `Tests/MetricRavenTests/contract-payloads.json` is shared with the backend's collect schema test, so
 the payloads can't drift from what the server accepts.
+
+## License
+
+MIT. See [LICENSE](LICENSE). Published by Dual Ninja LLC.

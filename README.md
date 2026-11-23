@@ -1,6 +1,8 @@
 # MetricRaven for Swift
 
 [![Latest tag](https://img.shields.io/github/v/tag/Dual-Ninja-LLC/metricraven-swift?label=version)](https://github.com/Dual-Ninja-LLC/metricraven-swift/tags)
+[![Swift versions](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FDual-Ninja-LLC%2Fmetricraven-swift%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/Dual-Ninja-LLC/metricraven-swift)
+[![Platforms](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FDual-Ninja-LLC%2Fmetricraven-swift%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/Dual-Ninja-LLC/metricraven-swift)
 
 The Swift package for [MetricRaven](https://metricraven.com), privacy-friendly analytics with revenue
 attribution: see which traffic actually pays. It records screen views, events and signed-in users from
